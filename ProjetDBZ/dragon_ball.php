@@ -156,7 +156,6 @@ class Jeu {
                 }
             }
             $personnageJoueur->tourSuivant();
-            // Permutez les rôles des personnages
             $temp = $personnageJoueur;
             $personnageJoueur = $personnageAdverse;
             $personnageAdverse = $temp;
@@ -172,23 +171,40 @@ class Jeu {
     }
 }
 
-
-
-
-
 $jeu = new Jeu();
 
 echo "Vous voulez être dans quel camp ?\n";
 $choixCamp = strtolower(readline("1. Héros \n2. Vilains\n"));
 
 if ($choixCamp == '1' || $choixCamp == 'héros') {
-    $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
-    
-    $vilain = new Vilains("Death Ball", "Freezer", 40, 275);
+    $heros = array(
+        new Heros("Kamehameha", "Son Goku", 35, 300),
+        new Heros("Final Flash", "Vegeta", 30, 140),
+        new Heros("Special Beam Cannon", "Piccolo", 20, 130)
+    );
+
+    $vilains = array(
+        new Vilains("Death Ball", "Freezer", 40, 275),
+        new Vilains("Solar Kamehameha", "Cell", 27, 180),
+        new Vilains("Planet Burst", "Buu", 34, 160)
+    );
 } else if ($choixCamp == '2' || $choixCamp == 'vilains') {
-    $vilain = new Vilains("Death Ball", "Freezer", 40, 275);
-    
-    $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
+    $vilains = array(
+        new Vilains("Death Ball", "Freezer", 40, 275),
+        new Vilains("Solar Kamehameha", "Cell", 27, 180),
+        new Vilains("Planet Burst", "Buu", 34, 160)
+    );
+    $heros = array(
+        new Heros("Kamehameha", "Son Goku", 35, 300),
+        new Heros("Final Flash", "Vegeta", 30, 140),
+        new Heros("Special Beam Cannon", "Piccolo", 20, 130)
+    );
 }
 
-$jeu->combat($heros, $vilain);
+foreach ($heros as $herosCombattant) {
+    foreach ($vilains as $vilainsCombattant) {
+        echo "Un nouveau combat commence!\n";
+        $jeu->combat($herosCombattant, $vilainsCombattant);
+        echo "Le combat est terminé!\n";
+    }
+}
