@@ -200,4 +200,3 @@ if ($choixCamp == '1' || $choixCamp == 'héros') {
         new Heros("Special Beam Cannon", "Piccolo", 20, 130)
     );
 }
-
