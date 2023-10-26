@@ -5,7 +5,9 @@ class Personnage {
     protected $vies;
     protected $attaque_speciale;
     protected $degats;
-    protected $inventaire;
+    protected $peutAttaquer; 
+    protected $tourRecharge;
+    protected $estEnDefense; 
 
     public function __construct($A, $N, $D, $V) {
         $this->attaque_speciale = $A;
@@ -13,68 +15,104 @@ class Personnage {
         $this->niveau_puissance = 1;
         $this->degats = $D;
         $this->vies = $V;
-        $this->inventaire = new Inventaire();
+        $this->peutAttaquer = true; 
+        $this->tourRecharge = 2; 
+        $this->estEnDefense = false; 
     }
-
-    public function choixCamp() {
-        echo "Vous voulez être dans quel camp ?\n";
-        $choix = strtolower(readline("1. Héros \n2. Vilains\n"));
+    public function getVies() {
+        return $this->vies;
+    }
+    public function getTourRecharge() {
+        return $this->tourRecharge;
+    }
+    public function choixAction($cible) {
+        echo "Que voulez-vous faire ?\n";
+        echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale\n";
+        $action = intval(readline());
         
-        $heros = array();
-        $vilains = array();
-
-        switch ($choix) {
-            case '1':
-            case 'héros':
-                $heros[] = new Heros("Kamehameha", "Son Goku", 35, 300);
-                $heros[] = new Heros("Final Flash", "Vegeta", 30, 140);
-                $heros[] = new Heros("Special Beam Cannon", "Piccolo", 20, 130);
-                return $heros;
-
-            case '2':
-            case 'vilains':
-                $vilains[] = new Vilains("Death Ball", "Freezer", 40, 275);
-                $vilains[] = new Vilains("Solar Kamehameha", "Cell", 27, 180);
-                $vilains[] = new Vilains("Planet Burst", "Buu", 34, 160);
-                return $vilains;
-
+        switch ($action) {
+            case 1:
+                $this->attaquer($cible);
+                break;
+            case 2:
+                $this->seDefendre();
+                break;
+            case 3:
+                if ($this->tourRecharge === 0) {
+                    $this->attaqueSpeciale($cible);
+                } else {
+                    echo "L'attaque spéciale est en recharge. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
+                }
+                break;
             default:
                 echo "Choix invalide.\n";
                 break;
         }
     }
+    public function attaquer($cible) {
+        $degatsInfliges = $this->degats;
+        $cible->prendreDegats($degatsInfliges);
+        echo $this->nom . " attaque " . $cible->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
+        $this->peutAttaquer = false; 
+    }
 
-    public function attaquer($adversaire) {
-        $degats = $this->degats;
-
-        if ($this instanceof Heros) {
-            $choix = strtolower(readline("Voulez-vous utiliser votre attaque spéciale ? (o/n)\n"));
-
-            if ($choix == 'o' && rand(1, 4) == 1) {
-                echo "{$this->nom} utilise son attaque spéciale {$this->attaque_speciale} !\n";
-                $adversaire->vies = 0;
-                return;
-            }
-        }
-
-        if ($adversaire instanceof Personnage && rand(1, 2) == 1) {
-            $degats *= 2;
-            echo "{$adversaire->nom} se défend et ne subit que {($degats) / 2} dégâts !\n";
+    
+    public function seDefendre() {
+        $this->peutAttaquer = false;
+        $this->estEnDefense = true;
+        echo $this->nom . " se prépare à se faire attaquer \n";
+    }
+    
+    public function prendreDegats($degats) {
+        if ($this->peutAttaquer) {
+            $this->vies -= $degats;
         } else {
-            echo "{$this->nom} attaque {$adversaire->nom} !\n";
+            $this->vies -= $degats / 2;
         }
-
-        $adversaire->vies -= $degats;
-
-        if ($adversaire->vies <= 0) {
-            echo "{$adversaire->nom} est mort !\n";
+        if ($this->vies <= 0) {
+            $this->mourir();
         }
     }
+
+    public function attaqueSpeciale($cible) {
+        if ($this->tourRecharge === 0) {
+            $degatsInfliges = 50;
+            $cible->prendreDegats($degatsInfliges);
+            echo $this->nom . " utilise son attaque spéciale sur " . $cible->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
+            $this->tourRecharge = 2;
+            $this->peutAttaquer = false;
+        } else {
+            echo "L'attaque spéciale est en recharge. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
+        }
+    }
+    
+
+
+    public function tourSuivant() {
+        if ($this->tourRecharge > 0) {
+            $this->tourRecharge--;
+            if ($this->tourRecharge === 0) {
+                echo $this->nom . " a rechargé son attaque spéciale!\n";
+            }
+        }
+        $this->peutAttaquer = true;
+    }
+    public function mourir() {
+        echo $this->nom . " a été vaincu!\n";
+    }
+
+    public function getNom() {
+        return $this->nom;
+    }
+
 }
 
 class Heros extends Personnage {
     public function __construct($attaque_speciale, $nom, $degats, $vies) {
         parent::__construct($attaque_speciale, $nom, $degats, $vies);
+    }
+    public function mourir() {
+        echo $this->nom . " a été vaincu!\n";
     }
 }
 
@@ -82,92 +120,79 @@ class Vilains extends Personnage {
     public function __construct($attaque_speciale, $nom, $degats, $vies) {
         parent::__construct($attaque_speciale, $nom, $degats, $vies);
     }
-}
-
-class Inventaire {
-    protected $objets = array();
-
-    public function ajouter_objet($objet) {
-        $this->objets[] = $objet;
-    }
-
-    public function supprimer_objet($objet) {
-        $index = array_search($objet, $this->objets);
-
-        if ($index !== false) {
-            unset($this->objets[$index]);
-        }
-    }
-
-    public function afficher_inventaire() {
-        if (empty($this->objets)) {
-            echo "L'inventaire est vide.\n";
-        } else {
-            echo "Inventaire :\n";
-
-            foreach ($this->objets as $objet) {
-                echo "- {$objet}\n";
-            }
-        }
+    public function mourir() {
+        echo $this->nom . " a été vaincu!\n";
     }
 }
+class Jeu {
+    public function combat($personnageJoueur, $personnageAdverse) {
+        $tour = 1;
 
-$utilisateur = readline("Entrez votre nom : ");
-echo "Bienvenue, {$utilisateur} !\n";
+        while ($personnageJoueur->getVies() > 0 && $personnageAdverse->getVies() > 0) {
+            echo "Tour $tour\n";
 
-$personnages = array();
-$personnages[] = new Personnage(null, null, null, null);
-$personnages[] = new Personnage(null, null, null, null);
+            echo "{$personnageJoueur->getNom()} - Vies : {$personnageJoueur->getVies()}\n";
+            echo "{$personnageAdverse->getNom()} - Vies : {$personnageAdverse->getVies()}\n";
 
-$personnages[0]->choixCamp();
-// $personnages[1]->choixCamp();
-
-$manches = 3;
-$rounds = array();
-
-for ($i = 1; $i <= $manches; $i++) {
-    echo "Manche {$i} !\n";
-    $rounds[$i] = array();
-    $rounds[$i]['heros'] = $personnages[0];
-    $rounds[$i]['vilains'] = $personnages[1];
-
-    for ($j = 1; $j <= 3; $j++) {
-        echo "Round {$j} !\n";
-        $attaquant = rand(0, 1);
-        $defenseur = $attaquant == 0 ? 1 : 0;
-
-        echo "Que voulez-vous faire ?\n";
-        echo "1. Attaquer\n";
-        echo "2. Se défendre\n";
-        $choix = trim(readline());
-
-        switch ($choix) {
-            case '1':
-                $rounds[$i][$attaquant]->attaquer($rounds[$i][$defenseur]);
-                break;
-            case '2':
-                $degats = $rounds[$i][$attaquant]->degats / 2;
-                echo "{$rounds[$i][$attaquant]->nom} se défend et ne subit que {$degats} dégâts !\n";
-                $rounds[$i][$attaquant]->vies -= $degats;
-
-                if ($rounds[$i][$attaquant]->vies <= 0) {
-                    echo "{$rounds[$i][$attaquant]->nom} est mort !\n";
+            if ($personnageJoueur instanceof Heros) {
+                $personnageJoueur->choixAction($personnageAdverse);
+            } else {
+                $actionAleatoire = rand(1, 3); // 1: Attaquer, 2: Se défendre, 3: Attaque spéciale
+                switch ($actionAleatoire) {
+                    case 1:
+                        $personnageJoueur->attaquer($personnageAdverse);
+                        break;
+                    case 2:
+                        $personnageJoueur->seDefendre();
+                        break;
+                    case 3:
+                        if ($personnageJoueur->getTourRecharge() === 0) {
+                            $personnageJoueur->attaqueSpeciale($personnageAdverse);
+                        } else {
+                            echo "L'attaque spéciale est en recharge. Vous devez attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
+                        }
+                        break;
                 }
+            }
+            $personnageJoueur->tourSuivant();
+            // Permutez les rôles des personnages
+            $temp = $personnageJoueur;
+            $personnageJoueur = $personnageAdverse;
+            $personnageAdverse = $temp;
 
-                break;
-            default:
-                echo "Choix invalide.\n";
-                break;
+            $tour++;
         }
 
-        if ($rounds[$i][$defenseur]->vies <= 0) {
-            echo "{$rounds[$i][$attaquant]->nom} a gagné le round !\n";
-            break;
+        if ($personnageJoueur->getVies() <= 0) {
+            echo "{$personnageAdverse->getNom()} a remporté le combat!\n";
+        } else {
+            echo "{$personnageJoueur->getNom()} a remporté le combat!\n";
         }
     }
 }
 
-$file = fopen("{$utilisateur}.txt", "w");
-fwrite($file, json_encode($rounds));
-fclose($file);
-echo "Les résultats ont été sauvegardés dans le fichier {$utilisateur}.txt.\n";
+
+
+
+
+$jeu = new Jeu();
+
+echo "Vous voulez être dans quel camp ?\n";
+$choixCamp = strtolower(readline("1. Héros \n2. Vilains\n"));
+
+if ($choixCamp == '1' || $choixCamp == 'héros') {
+    // Créez une instance de héros
+    $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
+    
+    // Créez une instance de vilain (l'adversaire)
+    $vilain = new Vilains("Death Ball", "Freezer", 40, 275);
+} else if ($choixCamp == '2' || $choixCamp == 'vilains') {
+    // Créez une instance de vilain
+    $vilain = new Vilains("Death Ball", "Freezer", 40, 275);
+    
+    // Créez une instance de héros (l'adversaire)
+    $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
+}
+
+// Faites combattre les héros et les vilains
+$jeu->combat($heros, $vilain);

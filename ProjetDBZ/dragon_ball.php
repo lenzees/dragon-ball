@@ -124,9 +124,6 @@ class Vilains extends Personnage {
         echo $this->nom . " a été vaincu!\n";
     }
 }
-<<<<<<< HEAD
-echo "Bienvenue dans le jeu Dragon Ball !\n";
-=======
 class Jeu {
     public function combat($personnageJoueur, $personnageAdverse) {
         $tour = 1;
@@ -199,4 +196,3 @@ if ($choixCamp == '1' || $choixCamp == 'héros') {
 
 // Faites combattre les héros et les vilains
 $jeu->combat($heros, $vilain);
->>>>>>> 66503c936c9ca48e2c2161746a0e8548c7094acc
