@@ -12,10 +12,14 @@ class Personnage{
     }
 }
 class heros extends Personnage{
-    private $nom;
+    private $attaque_speciale;
 
- public function __construct($nom,$vie,$niveau_puissabce)
- parent::__construct($nom,$vie,$niveau_puissabce)
+ public function __construct($attaque_speciale,$nom,$vie,$niveau_puissabce)
+ parent::__construct($N,$Nv,$V)
+ {
+        $this->nom=$nom;
+        $this->attaque_speciale=$attaque_speciale;
+    }
  {
         $this->nom=$nom;
         $this->vie=$vie;
@@ -24,5 +28,16 @@ class heros extends Personnage{
     
 }
 class vilains extends Personnage{
+    public function __construct($attaque_speciale,$nom,$vie,$niveau_puissabce)
+ parent::__construct($N,$Nv,$V)
+ {
+        $this->nom=$nom;
+        $this->attaque_speciale=$attaque_speciale;
+    }
+ {
+        $this->nom=$nom;
+        $this->vie=$vie;
+        $this->niveau_puissabce=$niveau_puissabce;
+    }
     
 }
