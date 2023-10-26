@@ -10,6 +10,7 @@ class Personnage{
         $this->niveau_puissance=$Nv;
         $this->vies=$V;
     }
+
 }
 
 class heros extends Personnage{
@@ -26,6 +27,7 @@ class heros extends Personnage{
 
 class vilains extends Personnage{
     private $attaque_speciale;
+    private $attaque_vilaine;
     private $vilains;
 
     public function __construct($attaque_speciale,$nom,$vie,$niveau_puissance)
