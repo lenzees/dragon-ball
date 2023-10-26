@@ -129,6 +129,7 @@ class Jeu {
         $tour = 1;
 
         while ($personnageJoueur->getVies() > 0 && $personnageAdverse->getVies() > 0) {
+            echo "------------------------\n";
             echo "Tour $tour\n";
 
             echo "{$personnageJoueur->getNom()} - Vies : {$personnageJoueur->getVies()}\n";
@@ -181,18 +182,13 @@ echo "Vous voulez être dans quel camp ?\n";
 $choixCamp = strtolower(readline("1. Héros \n2. Vilains\n"));
 
 if ($choixCamp == '1' || $choixCamp == 'héros') {
-    // Créez une instance de héros
     $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
     
-    // Créez une instance de vilain (l'adversaire)
     $vilain = new Vilains("Death Ball", "Freezer", 40, 275);
 } else if ($choixCamp == '2' || $choixCamp == 'vilains') {
-    // Créez une instance de vilain
     $vilain = new Vilains("Death Ball", "Freezer", 40, 275);
     
-    // Créez une instance de héros (l'adversaire)
     $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
 }
 
-// Faites combattre les héros et les vilains
 $jeu->combat($heros, $vilain);
