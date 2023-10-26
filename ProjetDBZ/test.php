@@ -129,7 +129,6 @@ class Jeu {
         $tour = 1;
 
         while ($personnageJoueur->getVies() > 0 && $personnageAdverse->getVies() > 0) {
-            echo "------------------------\n";
             echo "Tour $tour\n";
 
             echo "{$personnageJoueur->getNom()} - Vies : {$personnageJoueur->getVies()}\n";
@@ -156,6 +155,7 @@ class Jeu {
                 }
             }
             $personnageJoueur->tourSuivant();
+            // Permutez les rôles des personnages
             $temp = $personnageJoueur;
             $personnageJoueur = $personnageAdverse;
             $personnageAdverse = $temp;
@@ -171,33 +171,28 @@ class Jeu {
     }
 }
 
+
+
+
+
 $jeu = new Jeu();
 
 echo "Vous voulez être dans quel camp ?\n";
 $choixCamp = strtolower(readline("1. Héros \n2. Vilains\n"));
 
 if ($choixCamp == '1' || $choixCamp == 'héros') {
-    $heros = array(
-        new Heros("Kamehameha", "Son Goku", 35, 300),
-        new Heros("Final Flash", "Vegeta", 30, 140),
-        new Heros("Special Beam Cannon", "Piccolo", 20, 130)
-    );
-
-    $vilains = array(
-        new Vilains("Death Ball", "Freezer", 40, 275),
-        new Vilains("Solar Kamehameha", "Cell", 27, 180),
-        new Vilains("Planet Burst", "Buu", 34, 160)
-    );
+    // Créez une instance de héros
+    $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
+    
+    // Créez une instance de vilain (l'adversaire)
+    $vilain = new Vilains("Death Ball", "Freezer", 40, 275);
 } else if ($choixCamp == '2' || $choixCamp == 'vilains') {
-    $vilains = array(
-        new Vilains("Death Ball", "Freezer", 40, 275),
-        new Vilains("Solar Kamehameha", "Cell", 27, 180),
-        new Vilains("Planet Burst", "Buu", 34, 160)
-    );
-    $heros = array(
-        new Heros("Kamehameha", "Son Goku", 35, 300),
-        new Heros("Final Flash", "Vegeta", 30, 140),
-        new Heros("Special Beam Cannon", "Piccolo", 20, 130)
-    );
+    // Créez une instance de vilain
+    $vilain = new Vilains("Death Ball", "Freezer", 40, 275);
+    
+    // Créez une instance de héros (l'adversaire)
+    $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
 }
 
+// Faites combattre les héros et les vilains
+$jeu->combat($heros, $vilain);
