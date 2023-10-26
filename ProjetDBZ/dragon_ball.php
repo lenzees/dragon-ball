@@ -201,3 +201,10 @@ if ($choixCamp == '1' || $choixCamp == 'héros') {
     );
 }
 
+foreach ($heros as $herosCombattant) {
+    foreach ($vilains as $vilainsCombattant) {
+        echo "Un nouveau combat commence!\n";
+        $jeu->combat($herosCombattant, $vilainsCombattant);
+        echo "Le combat est terminé!\n";
+    }
+}
