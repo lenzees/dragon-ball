@@ -4,17 +4,33 @@ class Personnage{
     protected $niveau_puissance;
     protected $vies;
 
-    public function __construct($N,$Nv,$V)
+    public function __construct($N,$V)
     {
-        $this->nom=$N;
         $this->niveau_puissance=1;
         $this->vies=$V;
+    }
+    public function choixCamp(){
+        echo "vous voulez être dans quel camp";
+        $choix = strtolower(readline("1. Héros \n 2. Vilains"));
+        switch ($choix) {
+            case '1' || 'héros':
+                $heros = array("Son Goku","Vegeta","Piccolo");
+                $vilains = array("Freezer","Cell","Buu","Babidi","Dabra","Broly","Bojack","Janemba","Cooler");
+                break;
+            case '2' || 'vilains':
+                $heros = array("Son Goku","Gohan","Vegeta","Gotenks","Piccolo","Trunks","Krillin","Goten","C18");
+                $vilains = array("freezer","cell","buu");
+            default:
+                # code...
+                break;
+        }
+
     }
 }
 
 class heros extends Personnage{
     private $attaque_speciale;
-    private $heros;
+    public $heros;
 
     public function __construct($attaque_speciale,$nom,$vie,$niveau_puissance)
     {
