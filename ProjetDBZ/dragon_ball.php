@@ -191,9 +191,4 @@ if ($choixCamp == '1' || $choixCamp == 'héros') {
     $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
 }
 
-<<<<<<< HEAD
-// Faites combattre les héros et les vilains
 $jeu->combat($heros, $vilain);
-=======
-$jeu->combat($heros, $vilain);
->>>>>>> 96ee8c0ad57215ab915134e4d5c8ad1227427775
