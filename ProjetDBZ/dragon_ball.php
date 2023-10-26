@@ -7,7 +7,7 @@ class Personnage{
     public function __construct($N,$Nv,$V)
     {
         $this->nom=$N;
-        $this->niveau_puissance=$Nv;
+        $this->niveau_puissance=1;
         $this->vies=$V;
     }
 }
