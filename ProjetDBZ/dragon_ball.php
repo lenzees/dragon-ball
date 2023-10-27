@@ -12,7 +12,7 @@ class Personnage {
     protected $estEnDefense;
     protected $super_attaque; 
     //create function construct
-    public function __construct($S, $A, $N, $D, $V) {
+    protected function __construct($S, $A, $N, $D, $V) {
         $this->super_attaque = $S;
         $this->attaque_speciale = $A;
         $this->nom = $N;
@@ -256,7 +256,7 @@ class Jeu {
 }
 
 $heros = array(
-    new Heros("Genki Dama","Kamehameha", "Son Goku", 35, 300),
+    new Heros("Kamehameha","Genki Dama", "Son Goku", 35, 300),
     new Heros(" Big Bang Attack","Final Flash", "Vegeta", 30, 140),
     new Heros("Masenko","Special Beam Cannon", "Piccolo", 20, 130)
 );
