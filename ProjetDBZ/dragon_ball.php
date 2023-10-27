@@ -256,6 +256,9 @@ $vilains = array(
 );
 //create foreach loop
 echo "Choisissez votre héros:\n";
+foreach ($heros as $key => $hero) {
+    echo ($key + 1) . ". " . $hero->getNom() . "\n";
+}
 $herosActifs = $heros;
 
 foreach ($vilains as $vilainsCombattant) {
