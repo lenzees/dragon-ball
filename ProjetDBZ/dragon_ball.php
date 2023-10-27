@@ -2,7 +2,7 @@
 <?php 
 //create class Personnage
 class Personnage {
-    protected $nom;
+    protected $nom;//protecteb beacause the vaiables are use in other classes
     protected $niveau;
     protected $vies;
     protected $attaque_speciale;
@@ -12,7 +12,7 @@ class Personnage {
     protected $estEnDefense;
     protected $super_attaque; 
     //create function construct
-    protected function __construct($S, $A, $N, $D, $V) {
+    protected function __construct($S, $A, $N, $D, $V) {//the constructor is protected because the other classes take the variables
         $this->super_attaque = $S;
         $this->attaque_speciale = $A;
         $this->nom = $N;
@@ -24,44 +24,44 @@ class Personnage {
         $this->estEnDefense = false; 
     }
     //create function getVies
-    public function getVies() {
+    public function getVies() {//the function is public because it is used outside the class
         return $this->vies;
     }
     //create function getTourRecharge
-    public function getTourRecharge() {
+    public function getTourRecharge() {//the function is public because it is used outside the class
         return $this->tourRecharge;
     }
     //create function choixAction
-    public function choixAction($personnageAdverse) {
+    public function choixAction($personnageAdverse) {//the function is public because it is used outside the class
         echo "Que voulez-vous faire ?\n";
         echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale({$this->attaque_speciale})\n";
         $action = intval(readline());
-        //create switch
+        //create switch for actions
         switch ($action) {
             case 1:
-                $this->attaquer($personnageAdverse);
+                $this->attaquer($personnageAdverse);//if it is 1 then we attack
                 break;
             case 2:
-                $this->seDefendre();
+                $this->seDefendre();//if it's 2 then we defend ourselves
                 break;
-            case 3:
-                if ($this->tourRecharge === 0) {
-                    $this->attaqueSpeciale($personnageAdverse);
+            case 3://if it is 3 we make a specaial attack
+                if ($this->tourRecharge === 0) {//the special attack has a cooldown
+                    $this->attaqueSpeciale($personnageAdverse);//if there is more cooldown then the special attack can be performed
                 } else {
-                    echo "ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
+                    echo "ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";//otherwise it displays the cooldown time
                 }
                 break;
             default:
-                echo "Choix invalide.\n";
+                echo "Choix invalide.\n";//otherwise the choice is not valid
                 break;
         }
     }
     //create function attaquer
-    public function attaquer($personnageAdverse) {
-        if ($personnageAdverse->estEnDefense) {
+    public function attaquer($personnageAdverse) {//the function is public because it is used outside the class
+        if ($personnageAdverse->estEnDefense) {//if during the attack the character opposite defends then the damage is not divided in two
             $degatsInfliges = $this->degats / 2;
             echo $this->nom . " attaque " . $personnageAdverse->getNom() . " en mode de défense et inflige " . $degatsInfliges . " dégâts.\n";
-        } else {
+        } else {//the opponent takes all the damage from the attack if he does not defend
             $degatsInfliges = $this->degats;
             echo $this->nom . " attaque " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
         }
@@ -71,25 +71,25 @@ class Personnage {
     
 
     //create function seDefendre
-    public function seDefendre() {
+    public function seDefendre() {//the function is public because it is used outside the class
         $this->peutAttaquer = false;
         $this->estEnDefense = true;
         echo $this->nom . " se prépare à se faire attaquer \n";
     }
     //create function attaqueSpeciale
-    public function prendreDegats($degats) {
+    public function prendreDegats($degats) {//the function is public because it is used outside the class
         if ($this->peutAttaquer) {
             $this->vies -= $degats;
         } else {
-            $this->vies -= $degats / 2;
+            $this->vies -= $degats / 2;//if during the special attack the character opposite defends then the damage is not divided in two
         }
         if ($this->vies <= 0) {
-            $this->mourir();
+            $this->mourir();//if the character's life drops to 0 then he dies
         }
     }
     //create function attaqueSpeciale
-    public function attaqueSpeciale($personnageAdverse) {
-        if ($this->tourRecharge === 0) {
+    public function attaqueSpeciale($personnageAdverse) {//the function is public because it is used outside the class
+        if ($this->tourRecharge === 0) {//it takes 2 turns of cooldoawn otherwise the attack is not launched
             $degatsInfliges = 50;
             if ($personnageAdverse->estEnDefense) {
                 $degatsInfliges /= 2;
@@ -109,21 +109,21 @@ class Personnage {
     
 
     //create function tourSuivant
-    public function tourSuivant() {
+    public function tourSuivant() {//the function is public because it is used outside the class
         if ($this->tourRecharge > 0) {
             $this->tourRecharge--;
-            if ($this->tourRecharge === 0) {
+            if ($this->tourRecharge === 0) {// If the cooldown timer reaches 0, the special attack is recharged.
                 echo $this->nom . " a rechargé son attaque spéciale!\n";
             }
         }
         $this->peutAttaquer = true;
     }
     //create function mourir
-    public function mourir() {
+    public function mourir() {//the function is public because it is used outside the class
         echo $this->nom . " a été vaincu!\n";
     }
     //create function getNom
-    public function getNom() {
+    public function getNom() {//the function is public because it is used outside the class
         return $this->nom;
     }
 
@@ -131,17 +131,17 @@ class Personnage {
     //create class Heros
 class Heros extends Personnage {
     private $premierEnnemiApparu = false;
-    private $tourRechargeSuperAttaque = 0;
+    private $tourRechargeSuperAttaque = 0;//private because the variable is not used outside the class
     //create function construct
-    public function __construct($super_attaque,$attaque_speciale, $nom, $degats, $vies) {
-        parent::__construct($super_attaque,$attaque_speciale, $nom, $degats, $vies);
+    public function __construct($super_attaque,$attaque_speciale, $nom, $degats, $vies) {//public because the constructor is used outside the class
+        parent::__construct($super_attaque,$attaque_speciale, $nom, $degats, $vies);//it inherits from the parent constructor
     }
-    public function gagnerCombat() {
-        $this->niveau++;
+    public function gagnerCombat() {//the function is public because it is used outside the class
+        $this->niveau++;//if the fight is won then it increases in level
         echo $this->nom . " a gagné le combat et atteint le niveau " . $this->niveau . "!\n";
     }
     //create function mourir
-    public function superAttaque($personnageAdverse) {
+    public function superAttaque($personnageAdverse) {//the function is public because it is used outside the class
         if ($this->niveau >= 2) {
             if ($this->tourRechargeSuperAttaque === 0) {
                 $degatsInfliges = 100;
@@ -158,7 +158,7 @@ class Heros extends Personnage {
     }
     
     //create function choixAction
-    public function choixAction($personnageAdverse) {
+    public function choixAction($personnageAdverse) {//the function is public because it is used outside the class
         echo "Que voulez-vous faire ?\n";
         echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale\n4. Super attaque\n";
         $action = intval(readline());
@@ -186,7 +186,7 @@ class Heros extends Personnage {
         }
     }
     //create function attaquer
-    public function tourSuivant() {
+    public function tourSuivant() {//the function is public because it is used outside the class
         if ($this->tourRecharge > 0) {
             $this->tourRecharge--;
             if ($this->tourRecharge === 0) {
@@ -208,10 +208,10 @@ class Vilains extends Personnage {
     public function __construct($super_attaque,$attaque_speciale, $nom, $degats, $vies) {
         parent::__construct($super_attaque,$attaque_speciale, $nom, $degats, $vies);
     }
-    public function mourir() {
+    public function mourir() {//the function is public because it is used outside the class
         echo $this->nom . " a été vaincu!\n";
     }
-    public function gagnerCombat() {
+    public function gagnerCombat() {//the function is public because it is used outside the class
         $this->niveau++;
         echo $this->nom . " a gagné le combat et atteint le niveau " . $this->niveau . "!\n";
     }
@@ -219,7 +219,7 @@ class Vilains extends Personnage {
 //create class Jeu
 class Jeu {
     //create function combat
-    public function combat($personnageJoueur, $personnageAdverse) {
+    public function combat($personnageJoueur, $personnageAdverse) {//the function is public because it is used outside the class
         $tour = 1;
         //create while loop 
         while ($personnageJoueur->getVies() > 0 && $personnageAdverse->getVies() > 0) {
