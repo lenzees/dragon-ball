@@ -247,8 +247,9 @@ class Jeu {
             $personnageAdverse->gagnerCombat();
         } else {
             echo "{$personnageJoueur->getNom()} a remporté le combat!\n";
-            $personnageAdverse->gagnerCombat();
+            $personnageJoueur->gagnerCombat();
         }
+        
     }
 }
 
@@ -258,9 +259,9 @@ $heros = array(
     new Heros("Special Beam Cannon", "Piccolo", 20, 130)
 );
 $vilains = array(
-    new Vilains("Death Ball", "Freezer", 40, 275),
     new Vilains("Solar Kamehameha", "Cell", 27, 180),
-    new Vilains("Planet Burst", "Buu", 34, 160)
+    new Vilains("Planet Burst", "Buu", 34, 160),
+    new Vilains("Death Ball", "Freezer", 40, 275)
 );
 
 $herosActifs = [];
@@ -287,24 +288,12 @@ while (true) {
 
 $jeu = new Jeu();
 
-foreach ($vilains as $vilainsCombattant) {
-    foreach ($herosActifs as $herosCombattant) {
-        echo "Un nouveau combat commence!\n";
+foreach ($herosActifs as $herosCombattant) {
+    echo "Un nouveau combat commence!\n";
+    foreach ($vilains as $vilainsCombattant) {
         $jeu->combat($herosCombattant, $vilainsCombattant);
-        echo "Le combat est terminé!\n";
-
-        if ($herosCombattant->getVies() <= 0) {
-            echo "{$herosCombattant->getNom()} a été vaincu!\n";
-            $key = array_search($herosCombattant, $herosActifs);
-            if ($key !== false) {
-                unset($herosActifs[$key]);
-            }
-
-            if (empty($herosActifs)) {
-                echo "Tous les héros ont été vaincus. Les méchants l'emportent!\n";
-                break 2;
-            }
-        }
     }
+    echo "Le combat est terminé!\n";
 }
+
 
