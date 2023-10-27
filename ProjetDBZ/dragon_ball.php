@@ -31,6 +31,27 @@ class Personnage {
     public function getTourRecharge() {
         return $this->tourRecharge;
     }
+    //create function getEstEnDefense
+    public function getEstEnDefense() {
+        return $this->estEnDefense;
+    }
+    //create function getDegats
+    public function getDegats() {
+        return $this->degats;
+    }
+    //create function getAttaqueSpeciale
+    public function getAttaqueSpeciale() {
+        return $this->attaque_speciale;
+    }
+   
+    //create function getNiveau
+    public function getNiveau() {
+        return $this->niveau;
+    }
+    //create function getTourRechargeSuperAttaque
+    public function getTourRechargeSuperAttaque() {
+        return $this->tourRechargeSuperAttaque;
+    }
     //Prompts the user to choose an action and calls the corresponding method
     public function choixAction($personnageAdverse) {
         echo "Que voulez-vous faire ?\n";
@@ -58,11 +79,17 @@ class Personnage {
     }
     // Attacks the adversary and reduces their health points
     public function attaquer($personnageAdverse) {
-        $degatsInfliges = $this->degats;
+        if ($personnageAdverse->estEnDefense) {
+            $degatsInfliges = $this->degats / 2;
+            echo $this->nom . " attaque " . $personnageAdverse->getNom() . " en mode de défense et inflige " . $degatsInfliges . " dégâts.\n";
+        } else {
+            $degatsInfliges = $this->degats;
+            echo $this->nom . " attaque " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
+        }
         $personnageAdverse->prendreDegats($degatsInfliges);
-        echo $this->nom . " attaque " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
-        $this->peutAttaquer = false; 
+        $this->peutAttaquer = false;
     }
+    
 
     //create function seDefendre
     // Increases the character's defense
@@ -88,14 +115,21 @@ class Personnage {
     public function attaqueSpeciale($personnageAdverse) {
         if ($this->tourRecharge === 0) {
             $degatsInfliges = 50;
+            if ($personnageAdverse->estEnDefense) {
+                $degatsInfliges /= 2;
+                echo "{$this->nom} utilise son attaque spéciale ({$this->attaque_speciale}) sur {$personnageAdverse->getNom()}" . " en mode de défense et inflige " . $degatsInfliges . " dégâts.\n";
+            } else {
+                echo "{$this->nom} utilise son attaque spéciale ({$this->attaque_speciale}) sur {$personnageAdverse->getNom()}" . " et inflige " . $degatsInfliges . " dégâts.\n";
+            }
+    
             $personnageAdverse->prendreDegats($degatsInfliges);
-            echo "{$this->nom} utilise son attaque spéciale ({$this->attaque_speciale}) sur {$personnageAdverse->getNom()}". " et inflige " . $degatsInfliges . " dégâts.\n";
             $this->tourRecharge = 2;
             $this->peutAttaquer = false;
         } else {
             echo "Ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
         }
     }
+    
     
 
     //create function tourSuivant
@@ -127,6 +161,18 @@ class Heros extends Personnage {
     public function __construct($super_attaque,$attaque_speciale, $nom, $degats, $vies) {
         parent::__construct($super_attaque,$attaque_speciale, $nom, $degats, $vies);
     }
+    public function getAttaqueSpeciale() {
+        return $this->attaque_speciale;
+    }
+
+    public function getNiveau() {
+        return $this->niveau;
+    }
+
+    public function getTourRechargeSuperAttaque() {
+        return $this->tourRechargeSuperAttaque;
+    }
+
     public function gagnerCombat() {
         $this->niveau++;
         echo $this->nom . " a gagné le combat et atteint le niveau " . $this->niveau . "!\n";
@@ -152,8 +198,8 @@ class Heros extends Personnage {
     // Prompts the user to choose an action and calls the corresponding method
     public function choixAction($personnageAdverse) {
         echo "Que voulez-vous faire ?\n";
-        echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale\n4. Super attaque\n";
-        $action = intval(readline());
+        echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale\n4. Super attaque\n 5. Sauvegarder\n";
+        $action = (readline());
         
         switch ($action) {
             case 1:
@@ -172,6 +218,11 @@ class Heros extends Personnage {
             case 4:
                 $this->superAttaque($personnageAdverse);
                 break;
+            case 5:
+                    $sauvegarde = new Jeu();
+                    $sauvegarde->sauvegarder($this->nom, $this->niveau, $this->vies, $this->attaque_speciale, $this->degats, $this->tourRecharge, $this->estEnDefense, $this->tourRechargeSuperAttaque);
+                    echo "Données sauvegardées. Au revoir !\n";
+                    exit();
             default:
                 echo "Choix invalide.\n";
                 break;
@@ -212,7 +263,8 @@ class Vilains extends Personnage {
 }
 //create class Jeu
 class Jeu {
-    //create function combat
+    private $sauvegarde;
+    private $nomFichier = "sauvegarde.txt";
     // Simulates a fight between two characters
     public function combat($personnageJoueur, $personnageAdverse) {
         $tour = 1;
@@ -252,29 +304,43 @@ class Jeu {
             $personnageAdverse = $temp;
 
             $tour++;
-        }
-
-        if ($personnageJoueur->getVies() <= 0) {
-            echo "{$personnageAdverse->getNom()} a remporté le combat!\n";
-            $personnageAdverse->gagnerCombat();
+        } 
+    }
+    public function sauvegarder($nom, $niveau, $vies, $attaque_speciale, $degats, $tourRecharge, $estEnDefense, $tourRechargeSuperAttaque) {
+        $data = array(
+            "nom" => $nom,
+            "niveau" => $niveau,
+            "vies" => $vies,
+            "attaque_speciale" => $attaque_speciale,
+            "degats" => $degats,
+            "tourRecharge" => $tourRecharge,
+            "estEnDefense" => $estEnDefense,
+            "tourRechargeSuperAttaque" => $tourRechargeSuperAttaque
+        );
+        $json = json_encode($data);
+        file_put_contents($this->nomFichier, $json);
+    }
+    public function charger() {
+        if (file_exists($this->nomFichier)) {
+            $json = file_get_contents($this->nomFichier);
+            $data = json_decode($json, true);
+            return $data;
         } else {
-            echo "{$personnageJoueur->getNom()} a remporté le combat!\n";
-            $personnageJoueur->gagnerCombat();
+            return null;
         }
-        
     }
 }
 //create class Heros
 $heros = array(
-    new Heros( "Kamehameha","Genki Dama", "Son Goku", 35, 300),
+    new Heros( "Kamehameha","Genki Dama", "Son Goku", 36, 300),
     new Heros(" Big Bang Attack","Final Flash", "Vegeta", 30, 140),
     new Heros("Masenko","Special Beam Cannon", "Piccolo", 20, 130)
 );
 //create class Vilains
 $vilains = array(
-    new Vilains("Attaque ventral","Planet Burst", "Buu", 34, 160),
-    new Vilains("Absorption","Solar Kamehameha", "Cell", 27, 180),
-    new Vilains("Supernova","Death Ball", "Freezer", 40, 275)
+    new Vilains("Supernova","Death Ball", "Freezer", 40, 275),
+    new Vilains("Absorption","Solar Kamehameha", "Cell", 28, 180),
+    new Vilains("Attaque ventral","Planet Burst", "Buu", 34, 160)
 );
 //create class Jeu
 $herosActifs = [];
@@ -299,13 +365,58 @@ while (true) {
 }
 
 $jeu = new Jeu();
-//create foreach loop 
-foreach ($herosActifs as $herosCombattant) {
-    echo "Un nouveau combat commence!\n";
-    foreach ($vilains as $vilainsCombattant) {
-        $jeu->combat($herosCombattant, $vilainsCombattant);
+$continuerPartie = readline("Voulez-vous continuer votre partie précédente ? (O/N) ");
+
+if (strtolower($continuerPartie) === "o") {
+    $data = $jeu->charger();
+
+    if ($data !== null) {
+        $herosChoisi = new Heros(
+            $data["nom"],
+            $data["niveau"],
+            $data["vies"],
+            $data["attaque_speciale"],
+            $data["degats"],
+            $data["tourRecharge"],
+            $data["estEnDefense"],
+            $data["tourRechargeSuperAttaque"]
+            
+
+        );
+        
+    } else {
+        echo "Aucune sauvegarde trouvée. Démarrage d'une nouvelle partie.\n";
     }
-    echo "Le combat est terminé!\n";
 }
+foreach ($vilains as $vilainsCombattant) {
+    echo "Un nouveau combat commence!\n";
+    $herosGagnants = [];
+    
+    foreach ($vilains as $vilainsCombattant) {
+        echo "Un nouveau combat commence!\n";
+        $herosGagnants = [];
+    
+        foreach ($herosActifs as $herosCombattant) {
+            $jeu->combat($herosCombattant, $vilainsCombattant);
+    
+            if ($herosCombattant->getVies() > 0) {
+                $herosGagnants[] = $herosCombattant;
+            }
+        }
+    
+        echo "Le combat est terminé!\n";
+    
+        if (empty($herosGagnants)) {
+            echo "Tous les héros ont été vaincus. Les méchants l'emportent!\n";
+        } else {
+            foreach ($herosGagnants as $herosGagnant) {
+                // Identifiez le héros gagnant ici
+                $herosGagnant->gagnerCombat();
+            }
+        }
+    }
+}
+    
+
 
 
