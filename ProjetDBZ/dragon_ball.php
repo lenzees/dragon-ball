@@ -1,7 +1,7 @@
 <?php
 class Personnage {
     protected $nom;
-    protected $niveau;
+    protected $niveau_puissance;
     protected $vies;
     protected $attaque_speciale;
     protected $degats;
@@ -12,7 +12,7 @@ class Personnage {
     public function __construct($A, $N, $D, $V) {
         $this->attaque_speciale = $A;
         $this->nom = $N;
-        $this->niveau = 1;
+        $this->niveau_puissance = 1;
         $this->degats = $D;
         $this->vies = $V;
         $this->peutAttaquer = true; 
@@ -25,23 +25,23 @@ class Personnage {
     public function getTourRecharge() {
         return $this->tourRecharge;
     }
-    public function choixAction($cible) {
+    public function choixAction($personnageAdverse) {
         echo "Que voulez-vous faire ?\n";
         echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale\n";
         $action = intval(readline());
         
         switch ($action) {
             case 1:
-                $this->attaquer($cible);
+                $this->attaquer($personnageAdverse);
                 break;
             case 2:
                 $this->seDefendre();
                 break;
             case 3:
                 if ($this->tourRecharge === 0) {
-                    $this->attaqueSpeciale($cible);
+                    $this->attaqueSpeciale($personnageAdverse);
                 } else {
-                    echo "L'attaque spéciale est en recharge. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
+                    echo "ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
                 }
                 break;
             default:
@@ -49,10 +49,10 @@ class Personnage {
                 break;
         }
     }
-    public function attaquer($cible) {
+    public function attaquer($personnageAdverse) {
         $degatsInfliges = $this->degats;
-        $cible->prendreDegats($degatsInfliges);
-        echo $this->nom . " attaque " . $cible->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
+        $personnageAdverse->prendreDegats($degatsInfliges);
+        echo $this->nom . " attaque " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
         $this->peutAttaquer = false; 
     }
 
@@ -74,15 +74,15 @@ class Personnage {
         }
     }
 
-    public function attaqueSpeciale($cible) {
+    public function attaqueSpeciale($personnageAdverse) {
         if ($this->tourRecharge === 0) {
             $degatsInfliges = 50;
-            $cible->prendreDegats($degatsInfliges);
-            echo $this->nom . " utilise son attaque spéciale sur " . $cible->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
+            $personnageAdverse->prendreDegats($degatsInfliges);
+            echo $this->nom . " utilise son attaque spéciale sur " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
             $this->tourRecharge = 2;
             $this->peutAttaquer = false;
         } else {
-            echo "L'attaque spéciale est en recharge. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
+            echo "Ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
         }
     }
     
@@ -108,38 +108,20 @@ class Personnage {
 }
 
 class Heros extends Personnage {
-    public function getAttaqueSpeciale() {
-        return $this->attaque_speciale;
+    public function __construct($attaque_speciale, $nom, $degats, $vies) {
+        parent::__construct($attaque_speciale, $nom, $degats, $vies);
     }
-
-    public function getNiveau() {
-        return $this->niveau;
-    }
-
-    public function victoire() {
-        $this->niveau++;
-    }
-
-    public function reinitialiserRecharge() {
-        $this->tourRecharge = 0;
+    public function mourir() {
+        echo $this->nom . " a été vaincu!\n";
     }
 }
 
 class Vilains extends Personnage {
-    public function getAttaqueSpeciale() {
-        return $this->attaque_speciale;
+    public function __construct($attaque_speciale, $nom, $degats, $vies) {
+        parent::__construct($attaque_speciale, $nom, $degats, $vies);
     }
-
-    public function getNiveau() {
-        return $this->niveau;
-    }
-
-    public function victoire() {
-        $this->niveau++;
-    }
-
-    public function reinitialiserRecharge() {
-        $this->tourRecharge = 0;
+    public function mourir() {
+        echo $this->nom . " a été vaincu!\n";
     }
 }
 class Jeu {
@@ -154,13 +136,25 @@ class Jeu {
             echo "{$personnageAdverse->getNom()} - Vies : {$personnageAdverse->getVies()}\n";
 
             if ($personnageJoueur instanceof Heros) {
-                $this->gererActionsHeros($personnageJoueur, $personnageAdverse);
+                $personnageJoueur->choixAction($personnageAdverse);
             } else {
-                if ($personnageJoueur instanceof Vilains) {
-                    $this->actionsAleatoiresPourVilain($personnageJoueur, $personnageAdverse);
+                $actionAleatoire = rand(1, 3); // 1: Attaquer, 2: Se défendre, 3: Attaque spéciale
+                switch ($actionAleatoire) {
+                    case 1:
+                        $personnageJoueur->attaquer($personnageAdverse);
+                        break;
+                    case 2:
+                        $personnageJoueur->seDefendre();
+                        break;
+                    case 3:
+                        if ($personnageJoueur->getTourRecharge() === 0) {
+                            $personnageJoueur->attaqueSpeciale($personnageAdverse);
+                        } else {
+                            echo "Le ki de {$personnageJoueur->getNom()} n'est suffisant pour lancer l'attaque specile. Il doit attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
+                        }
+                        break;
                 }
             }
-
             $personnageJoueur->tourSuivant();
             $temp = $personnageJoueur;
             $personnageJoueur = $personnageAdverse;
@@ -175,56 +169,7 @@ class Jeu {
             echo "{$personnageJoueur->getNom()} a remporté le combat!\n";
         }
     }
-
-    private function gererActionsHeros($personnageJoueur, $personnageAdverse) {
-        // Gérer les actions pour le contrôle du héros
-        $action = strtolower(readline("Choisissez une action :\n1. Attaquer\n2. Se défendre" . ($personnageJoueur->getNiveau() > 1 ? "\n3. Attaque spéciale" : "") . "Votre choix : "));
-        switch ($action) {
-            case '1':
-                $personnageJoueur->attaquer($personnageAdverse);
-                break;
-            case '2':
-                $personnageJoueur->seDefendre();
-                break;
-            case '3':
-                if ($personnageJoueur->getNiveau() > 1) {
-                    if ($personnageJoueur->getTourRecharge() === 0) {
-                        $personnageJoueur->attaqueSpeciale($personnageAdverse);
-                        $personnageJoueur->reinitialiserRecharge();
-                    } else {
-                        echo "L'attaque spéciale '" . $personnageJoueur->getAttaqueSpeciale() . "' est en recharge. Vous devez attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
-                    }
-                } else {
-                    echo "{$personnageJoueur->getNom()} n'est pas de niveau 2 et ne peut pas utiliser d'attaque spéciale.\n";
-                }
-                break;
-            default:
-                echo "Action non valide. Réessayez.\n";
-                $this->gererActionsHeros($personnageJoueur, $personnageAdverse);
-                break;
-        }
-    }
-
-    private function actionsAleatoiresPourVilain($personnageJoueur, $personnageAdverse) {
-        // Générer des actions aléatoires pour le vilain
-        $actionAleatoire = rand(1, 3); // 1: Attaquer, 2: Se défendre, 3: Attaque spéciale
-        switch ($actionAleatoire) {
-            case 1:
-                $personnageJoueur->attaquer($personnageAdverse);
-                break;
-            case 2:
-                $personnageJoueur->seDefendre();
-                break;
-            case 3:
-                if ($personnageJoueur->getNiveau() > 1 && $personnageJoueur->getTourRecharge() === 0) {
-                    $personnageJoueur->attaqueSpeciale($personnageAdverse);
-                    $personnageJoueur->reinitialiserRecharge();
-                }
-                break;
-        }
-    }
 }
-
 
 $jeu = new Jeu();
 
@@ -234,36 +179,21 @@ $heros = array(
     new Heros("Special Beam Cannon", "Piccolo", 20, 130)
 );
 
+echo "Choisissez votre héros:\n";
+foreach ($heros as $key => $hero) {
+    echo ($key + 1) . ". " . $hero->getNom() . "\n";
+}
+$heroIndex = intval(readline()) - 1;
+$heroChoisi = $heros[$heroIndex];
+
 $vilains = array(
     new Vilains("Death Ball", "Freezer", 40, 275),
     new Vilains("Solar Kamehameha", "Cell", 27, 180),
     new Vilains("Planet Burst", "Buu", 34, 160)
 );
 
-echo "Choisissez le héros avec lequel vous souhaitez commencer :\n";
-for ($i = 0; $i < count($heros); $i++) {
-    echo ($i + 1) . ". " . $heros[$i]->getNom() . "\n";
+foreach ($vilains as $vilainsCombattant) {
+    echo "Un nouveau combat commence!\n";
+    $jeu->combat($heroChoisi, $vilainsCombattant);
+    echo "Le combat est terminé!\n";
 }
-
-$choice = intval(readline("Votre choix : "));
-if ($choice >= 1 && $choice <= count($heros)) {
-    $herosCombattant = $heros[$choice - 1];
-    
-    foreach ($vilains as $vilainsCombattant) {
-        echo "Un nouveau combat commence!\n";
-        $jeu->combat($herosCombattant, $vilainsCombattant);
-        echo "Le combat est terminé!\n";
-    }
-} else {
-    echo "Choix invalide. Le héros n'existe pas.\n";
-}
-
-
-
-
-
-
-
-
-
-

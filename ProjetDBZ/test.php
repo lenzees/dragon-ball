@@ -25,23 +25,23 @@ class Personnage {
     public function getTourRecharge() {
         return $this->tourRecharge;
     }
-    public function choixAction($cible) {
+    public function choixAction($personnageAdverse) {
         echo "Que voulez-vous faire ?\n";
         echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale\n";
         $action = intval(readline());
         
         switch ($action) {
             case 1:
-                $this->attaquer($cible);
+                $this->attaquer($personnageAdverse);
                 break;
             case 2:
                 $this->seDefendre();
                 break;
             case 3:
                 if ($this->tourRecharge === 0) {
-                    $this->attaqueSpeciale($cible);
+                    $this->attaqueSpeciale($personnageAdverse);
                 } else {
-                    echo "L'attaque spéciale est en recharge. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
+                    echo "ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
                 }
                 break;
             default:
@@ -49,10 +49,10 @@ class Personnage {
                 break;
         }
     }
-    public function attaquer($cible) {
+    public function attaquer($personnageAdverse) {
         $degatsInfliges = $this->degats;
-        $cible->prendreDegats($degatsInfliges);
-        echo $this->nom . " attaque " . $cible->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
+        $personnageAdverse->prendreDegats($degatsInfliges);
+        echo $this->nom . " attaque " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
         $this->peutAttaquer = false; 
     }
 
@@ -74,15 +74,15 @@ class Personnage {
         }
     }
 
-    public function attaqueSpeciale($cible) {
+    public function attaqueSpeciale($personnageAdverse) {
         if ($this->tourRecharge === 0) {
             $degatsInfliges = 50;
-            $cible->prendreDegats($degatsInfliges);
-            echo $this->nom . " utilise son attaque spéciale sur " . $cible->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
+            $personnageAdverse->prendreDegats($degatsInfliges);
+            echo $this->nom . " utilise son attaque spéciale sur " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
             $this->tourRecharge = 2;
             $this->peutAttaquer = false;
         } else {
-            echo "L'attaque spéciale est en recharge. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
+            echo "Ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
         }
     }
     
@@ -129,6 +129,7 @@ class Jeu {
         $tour = 1;
 
         while ($personnageJoueur->getVies() > 0 && $personnageAdverse->getVies() > 0) {
+            echo "------------------------\n";
             echo "Tour $tour\n";
 
             echo "{$personnageJoueur->getNom()} - Vies : {$personnageJoueur->getVies()}\n";
@@ -149,13 +150,12 @@ class Jeu {
                         if ($personnageJoueur->getTourRecharge() === 0) {
                             $personnageJoueur->attaqueSpeciale($personnageAdverse);
                         } else {
-                            echo "L'attaque spéciale est en recharge. Vous devez attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
+                            echo "Le ki de {$personnageJoueur->getNom()} n'est suffisant pour lancer l'attaque specile. Vous devez attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
                         }
                         break;
                 }
             }
             $personnageJoueur->tourSuivant();
-            // Permutez les rôles des personnages
             $temp = $personnageJoueur;
             $personnageJoueur = $personnageAdverse;
             $personnageAdverse = $temp;
@@ -171,28 +171,29 @@ class Jeu {
     }
 }
 
-
-
-
-
 $jeu = new Jeu();
 
-echo "Vous voulez être dans quel camp ?\n";
-$choixCamp = strtolower(readline("1. Héros \n2. Vilains\n"));
+$heros = array(
+    new Heros("Kamehameha", "Son Goku", 35, 300),
+    new Heros("Final Flash", "Vegeta", 30, 140),
+    new Heros("Special Beam Cannon", "Piccolo", 20, 130)
+);
 
-if ($choixCamp == '1' || $choixCamp == 'héros') {
-    // Créez une instance de héros
-    $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
-    
-    // Créez une instance de vilain (l'adversaire)
-    $vilain = new Vilains("Death Ball", "Freezer", 40, 275);
-} else if ($choixCamp == '2' || $choixCamp == 'vilains') {
-    // Créez une instance de vilain
-    $vilain = new Vilains("Death Ball", "Freezer", 40, 275);
-    
-    // Créez une instance de héros (l'adversaire)
-    $heros = new Heros("Kamehameha", "Son Goku", 35, 300);
+echo "Choisissez votre héros:\n";
+foreach ($heros as $key => $hero) {
+    echo ($key + 1) . ". " . $hero->getNom() . "\n";
 }
+$heroIndex = intval(readline()) - 1;
+$heroChoisi = $heros[$heroIndex];
 
-// Faites combattre les héros et les vilains
-$jeu->combat($heros, $vilain);
+$vilains = array(
+    new Vilains("Death Ball", "Freezer", 40, 275),
+    new Vilains("Solar Kamehameha", "Cell", 27, 180),
+    new Vilains("Planet Burst", "Buu", 34, 160)
+);
+
+foreach ($vilains as $vilainsCombattant) {
+    echo "Un nouveau combat commence!\n";
+    $jeu->combat($heroChoisi, $vilainsCombattant);
+    echo "Le combat est terminé!\n";
+}
