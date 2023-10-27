@@ -125,6 +125,8 @@ class Vilains extends Personnage {
     }
 }
 class Jeu {
+    private $premierCombatGagne = false;
+
     public function combat($personnageJoueur, $personnageAdverse) {
         $tour = 1;
 
@@ -147,10 +149,14 @@ class Jeu {
                         $personnageJoueur->seDefendre();
                         break;
                     case 3:
-                        if ($personnageJoueur->getTourRecharge() === 0) {
+                        if ($this->premierCombatGagne && $personnageJoueur->getTourRecharge() === 0) {
                             $personnageJoueur->attaqueSpeciale($personnageAdverse);
                         } else {
-                            echo "Le ki de {$personnageJoueur->getNom()} n'est suffisant pour lancer l'attaque specile. Il doit attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
+                            if (!$this->premierCombatGagne) {
+                                echo "Votre héros est encore en train de s'entraîner. L'attaque spéciale sera disponible après le premier combat gagné.\n";
+                            } else {
+                                echo "Le ki de {$personnageJoueur->getNom()} n'est suffisant pour lancer l'attaque speciale. Vous devez attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
+                            }
                         }
                         break;
                 }
@@ -167,6 +173,7 @@ class Jeu {
             echo "{$personnageAdverse->getNom()} a remporté le combat!\n";
         } else {
             echo "{$personnageJoueur->getNom()} a remporté le combat!\n";
+            $this->premierCombatGagne = true;
         }
     }
 }

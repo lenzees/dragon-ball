@@ -108,11 +108,60 @@ class Personnage {
 }
 
 class Heros extends Personnage {
+    private $premierEnnemiApparu = false;
+
     public function __construct($attaque_speciale, $nom, $degats, $vies) {
         parent::__construct($attaque_speciale, $nom, $degats, $vies);
     }
-    public function mourir() {
-        echo $this->nom . " a été vaincu!\n";
+
+    public function superAttaque($personnageAdverse) {
+        if ($this->premierEnnemiApparu) {
+            $degatsInfliges = 100;
+            $personnageAdverse->prendreDegats($degatsInfliges);
+            echo $this->nom . " utilise sa super attaque sur " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
+            $this->peutAttaquer = false;
+        } else {
+            echo "Vous n'avez pas encore débloqué votre super attaque.\n";
+        }
+    }
+
+    public function choixAction($personnageAdverse) {
+        echo "Que voulez-vous faire ?\n";
+        echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale\n4. Super attaque\n";
+        $action = (readline());
+        
+        switch ($action) {
+            case 1:
+                $this->attaquer($personnageAdverse);
+                break;
+            case 2:
+                $this->seDefendre();
+                break;
+            case 3:
+                if ($this->tourRecharge === 0) {
+                    $this->attaqueSpeciale($personnageAdverse);
+                } else {
+                    echo "Ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
+                }
+                break;
+            case 4:
+                $this->superAttaque($personnageAdverse);
+                break;
+            default:
+                echo "Choix invalide.\n";
+                break;
+        }
+    }
+
+    public function tourSuivant() {
+        if ($this->tourRecharge > 0) {
+            $this->tourRecharge--;
+            if ($this->tourRecharge === 0) {
+                echo $this->nom . " a rechargé son attaque spéciale!\n";
+            }
+        }
+        $this->peutAttaquer = true;
+        $this->premierEnnemiApparu = true;
     }
 }
 
@@ -192,8 +241,39 @@ $vilains = array(
     new Vilains("Planet Burst", "Buu", 34, 160)
 );
 
+$jeu = new Jeu();
+
+$heros = array(
+    new Heros("Kamehameha", "Son Goku", 35, 300),
+    new Heros("Final Flash", "Vegeta", 30, 140),
+    new Heros("Special Beam Cannon", "Piccolo", 20, 130)
+);
+
+$vilains = array(
+    new Vilains("Death Ball", "Freezer", 40, 275),
+    new Vilains("Solar Kamehameha", "Cell", 27, 180),
+    new Vilains("Planet Burst", "Buu", 34, 160)
+);
+
+$herosActifs = $heros;
+
 foreach ($vilains as $vilainsCombattant) {
-    echo "Un nouveau combat commence!\n";
-    $jeu->combat($heroChoisi, $vilainsCombattant);
-    echo "Le combat est terminé!\n";
+    foreach ($herosActifs as $herosCombattant) {
+        echo "Un nouveau combat commence!\n";
+        $jeu->combat($herosCombattant, $vilainsCombattant);
+        echo "Le combat est terminé!\n";
+
+        if ($herosCombattant->getVies() <= 0) {
+            echo "{$herosCombattant->getNom()} a été vaincu!\n";
+            $key = array_search($herosCombattant, $herosActifs);
+            if ($key !== false) {
+                unset($herosActifs[$key]);
+            }
+
+            if (empty($herosActifs)) {
+                echo "Tous les héros ont été vaincus. Les méchants l'emportent!\n";
+                break 2;
+            }
+        }
+    }
 }
