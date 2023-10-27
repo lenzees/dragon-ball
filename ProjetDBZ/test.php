@@ -108,11 +108,60 @@ class Personnage {
 }
 
 class Heros extends Personnage {
+    private $premierEnnemiApparu = false;
+
     public function __construct($attaque_speciale, $nom, $degats, $vies) {
         parent::__construct($attaque_speciale, $nom, $degats, $vies);
     }
-    public function mourir() {
-        echo $this->nom . " a été vaincu!\n";
+
+    public function superAttaque($personnageAdverse) {
+        if ($this->premierEnnemiApparu) {
+            $degatsInfliges = 100;
+            $personnageAdverse->prendreDegats($degatsInfliges);
+            echo $this->nom . " utilise sa super attaque sur " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
+            $this->peutAttaquer = false;
+        } else {
+            echo "Vous n'avez pas encore débloqué votre super attaque.\n";
+        }
+    }
+
+    public function choixAction($personnageAdverse) {
+        echo "Que voulez-vous faire ?\n";
+        echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale\n4. Super attaque\n";
+        $action = intval(readline());
+        
+        switch ($action) {
+            case 1:
+                $this->attaquer($personnageAdverse);
+                break;
+            case 2:
+                $this->seDefendre();
+                break;
+            case 3:
+                if ($this->tourRecharge === 0) {
+                    $this->attaqueSpeciale($personnageAdverse);
+                } else {
+                    echo "Ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
+                }
+                break;
+            case 4:
+                $this->superAttaque($personnageAdverse);
+                break;
+            default:
+                echo "Choix invalide.\n";
+                break;
+        }
+    }
+
+    public function tourSuivant() {
+        if ($this->tourRecharge > 0) {
+            $this->tourRecharge--;
+            if ($this->tourRecharge === 0) {
+                echo $this->nom . " a rechargé son attaque spéciale!\n";
+            }
+        }
+        $this->peutAttaquer = true;
+        $this->premierEnnemiApparu = true;
     }
 }
 
