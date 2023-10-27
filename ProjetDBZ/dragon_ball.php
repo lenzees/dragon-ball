@@ -1,8 +1,8 @@
-<?php // commente le code ci dessous
+<?php 
 //create class Personnage
 class Personnage {
     protected $nom;
-    protected $niveau_puissance;
+    protected $niveau;
     protected $vies;
     protected $attaque_speciale;
     protected $degats;
@@ -13,7 +13,7 @@ class Personnage {
     public function __construct($A, $N, $D, $V) {
         $this->attaque_speciale = $A;
         $this->nom = $N;
-        $this->niveau_puissance = 1;
+        $this->niveau = 1;
         $this->degats = $D;
         $this->vies = $V;
         $this->peutAttaquer = true; 
@@ -221,7 +221,7 @@ class Jeu {
                         if ($personnageJoueur->getTourRecharge() === 0) {
                             $personnageJoueur->attaqueSpeciale($personnageAdverse);
                         } else {
-                            echo "Le ki de {$personnageJoueur->getNom()} n'est suffisant pour lancer l'attaque specile. Vous devez attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
+                            echo "Le ki de {$personnageJoueur->getNom()} n'est suffisant pour lancer l'attaque specile. Il doit attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
                         }
                         break;
                 }
@@ -241,9 +241,7 @@ class Jeu {
         }
     }
 }
-//create new object
-$jeu = new Jeu();
-//create array
+
 $heros = array(
     new Heros("Kamehameha", "Son Goku", 35, 300),
     new Heros("Final Flash", "Vegeta", 30, 140),
@@ -254,12 +252,31 @@ $vilains = array(
     new Vilains("Solar Kamehameha", "Cell", 27, 180),
     new Vilains("Planet Burst", "Buu", 34, 160)
 );
-//create foreach loop
-echo "Choisissez votre héros:\n";
-foreach ($heros as $key => $hero) {
-    echo ($key + 1) . ". " . $hero->getNom() . "\n";
+
+$herosActifs = [];
+$herosChoisi = null;
+
+while (true) {
+    echo "Héros disponibles:\n";
+    foreach ($heros as $index => $herosCombattant) {
+        echo ($index + 1) . ". " . $herosCombattant->getNom() . "\n";
+    }
+    $choix = (readline("Entrez le numéro du héros que vous voulez choisir : ")) - 1;
+
+    if (isset($heros[$choix])) {
+        $herosChoisi = $heros[$choix];
+        echo "Vous avez choisi {$herosChoisi->getNom()} comme héros.\n";
+        $herosActifs[] = $herosChoisi;
+        // Ajoutez deux autres héros par défaut
+        $herosActifs[] = $heros[1]; // Ajoutez Vegeta
+        $herosActifs[] = $heros[2]; // Ajoutez Piccolo
+        break;
+    } else {
+        echo "Héros invalide. Réessayez.\n";
+    }
 }
-$herosActifs = $heros;
+
+$jeu = new Jeu();
 
 foreach ($vilains as $vilainsCombattant) {
     foreach ($herosActifs as $herosCombattant) {
