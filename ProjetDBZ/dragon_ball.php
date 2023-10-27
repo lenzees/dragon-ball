@@ -58,11 +58,17 @@ class Personnage {
     }
     //create function attaquer
     public function attaquer($personnageAdverse) {
-        $degatsInfliges = $this->degats;
+        if ($personnageAdverse->estEnDefense) {
+            $degatsInfliges = $this->degats / 2;
+            echo $this->nom . " attaque " . $personnageAdverse->getNom() . " en mode de défense et inflige " . $degatsInfliges . " dégâts.\n";
+        } else {
+            $degatsInfliges = $this->degats;
+            echo $this->nom . " attaque " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
+        }
         $personnageAdverse->prendreDegats($degatsInfliges);
-        echo $this->nom . " attaque " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
-        $this->peutAttaquer = false; 
+        $this->peutAttaquer = false;
     }
+    
 
     //create function seDefendre
     public function seDefendre() {
@@ -85,14 +91,21 @@ class Personnage {
     public function attaqueSpeciale($personnageAdverse) {
         if ($this->tourRecharge === 0) {
             $degatsInfliges = 50;
+            if ($personnageAdverse->estEnDefense) {
+                $degatsInfliges /= 2;
+                echo "{$this->nom} utilise son attaque spéciale ({$this->attaque_speciale}) sur {$personnageAdverse->getNom()}" . " en mode de défense et inflige " . $degatsInfliges . " dégâts.\n";
+            } else {
+                echo "{$this->nom} utilise son attaque spéciale ({$this->attaque_speciale}) sur {$personnageAdverse->getNom()}" . " et inflige " . $degatsInfliges . " dégâts.\n";
+            }
+    
             $personnageAdverse->prendreDegats($degatsInfliges);
-            echo "{$this->nom} utilise son attaque spéciale ({$this->attaque_speciale}) sur {$personnageAdverse->getNom()}". " et inflige " . $degatsInfliges . " dégâts.\n";
             $this->tourRecharge = 2;
             $this->peutAttaquer = false;
         } else {
             echo "Ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
         }
     }
+    
     
 
     //create function tourSuivant
@@ -243,27 +256,18 @@ class Jeu {
             $personnageAdverse = $temp;
 
             $tour++;
-        }
-
-        if ($personnageJoueur->getVies() <= 0) {
-            echo "{$personnageAdverse->getNom()} a remporté le combat!\n";
-            $personnageAdverse->gagnerCombat();
-        } else {
-            echo "{$personnageJoueur->getNom()} a remporté le combat!\n";
-            $personnageJoueur->gagnerCombat();
-        }
-        
+        } 
     }
 }
 
 $heros = array(
-    new Heros( "Kamehameha","Genki Dama", "Son Goku", 35, 300),
+    new Heros( "Kamehameha","Genki Dama", "Son Goku", 36, 300),
     new Heros(" Big Bang Attack","Final Flash", "Vegeta", 30, 140),
     new Heros("Masenko","Special Beam Cannon", "Piccolo", 20, 130)
 );
 $vilains = array(
     new Vilains("Supernova","Death Ball", "Freezer", 40, 275),
-    new Vilains("Absorption","Solar Kamehameha", "Cell", 27, 180),
+    new Vilains("Absorption","Solar Kamehameha", "Cell", 28, 180),
     new Vilains("Attaque ventral","Planet Burst", "Buu", 34, 160)
 );
 
@@ -291,12 +295,35 @@ while (true) {
 
 $jeu = new Jeu();
 
-foreach ($herosActifs as $herosCombattant) {
+foreach ($vilains as $vilainsCombattant) {
     echo "Un nouveau combat commence!\n";
+    $herosGagnants = [];
+    
     foreach ($vilains as $vilainsCombattant) {
-        $jeu->combat($herosCombattant, $vilainsCombattant);
+        echo "Un nouveau combat commence!\n";
+        $herosGagnants = [];
+    
+        foreach ($herosActifs as $herosCombattant) {
+            $jeu->combat($herosCombattant, $vilainsCombattant);
+    
+            if ($herosCombattant->getVies() > 0) {
+                $herosGagnants[] = $herosCombattant;
+            }
+        }
+    
+        echo "Le combat est terminé!\n";
+    
+        if (empty($herosGagnants)) {
+            echo "Tous les héros ont été vaincus. Les méchants l'emportent!\n";
+        } else {
+            foreach ($herosGagnants as $herosGagnant) {
+                // Identifiez le héros gagnant ici
+                $herosGagnant->gagnerCombat();
+            }
+        }
     }
-    echo "Le combat est terminé!\n";
 }
+    
+
 
 
