@@ -1,7 +1,7 @@
 <?php
 class Personnage {
     protected $nom;
-    protected $niveau_puissance;
+    protected $niveau;
     protected $vies;
     protected $attaque_speciale;
     protected $degats;
@@ -12,7 +12,7 @@ class Personnage {
     public function __construct($A, $N, $D, $V) {
         $this->attaque_speciale = $A;
         $this->nom = $N;
-        $this->niveau_puissance = 1;
+        $this->niveau = 1;
         $this->degats = $D;
         $this->vies = $V;
         $this->peutAttaquer = true; 
@@ -108,20 +108,38 @@ class Personnage {
 }
 
 class Heros extends Personnage {
-    public function __construct($attaque_speciale, $nom, $degats, $vies) {
-        parent::__construct($attaque_speciale, $nom, $degats, $vies);
+    public function getAttaqueSpeciale() {
+        return $this->attaque_speciale;
     }
-    public function mourir() {
-        echo $this->nom . " a été vaincu!\n";
+
+    public function getNiveau() {
+        return $this->niveau;
+    }
+
+    public function victoire() {
+        $this->niveau++;
+    }
+
+    public function reinitialiserRecharge() {
+        $this->tourRecharge = 0;
     }
 }
 
 class Vilains extends Personnage {
-    public function __construct($attaque_speciale, $nom, $degats, $vies) {
-        parent::__construct($attaque_speciale, $nom, $degats, $vies);
+    public function getAttaqueSpeciale() {
+        return $this->attaque_speciale;
     }
-    public function mourir() {
-        echo $this->nom . " a été vaincu!\n";
+
+    public function getNiveau() {
+        return $this->niveau;
+    }
+
+    public function victoire() {
+        $this->niveau++;
+    }
+
+    public function reinitialiserRecharge() {
+        $this->tourRecharge = 0;
     }
 }
 class Jeu {
@@ -136,25 +154,13 @@ class Jeu {
             echo "{$personnageAdverse->getNom()} - Vies : {$personnageAdverse->getVies()}\n";
 
             if ($personnageJoueur instanceof Heros) {
-                $personnageJoueur->choixAction($personnageAdverse);
+                $this->gererActionsHeros($personnageJoueur, $personnageAdverse);
             } else {
-                $actionAleatoire = rand(1, 3); // 1: Attaquer, 2: Se défendre, 3: Attaque spéciale
-                switch ($actionAleatoire) {
-                    case 1:
-                        $personnageJoueur->attaquer($personnageAdverse);
-                        break;
-                    case 2:
-                        $personnageJoueur->seDefendre();
-                        break;
-                    case 3:
-                        if ($personnageJoueur->getTourRecharge() === 0) {
-                            $personnageJoueur->attaqueSpeciale($personnageAdverse);
-                        } else {
-                            echo "L'attaque spéciale est en recharge. Vous devez attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
-                        }
-                        break;
+                if ($personnageJoueur instanceof Vilains) {
+                    $this->actionsAleatoiresPourVilain($personnageJoueur, $personnageAdverse);
                 }
             }
+
             $personnageJoueur->tourSuivant();
             $temp = $personnageJoueur;
             $personnageJoueur = $personnageAdverse;
@@ -169,42 +175,95 @@ class Jeu {
             echo "{$personnageJoueur->getNom()} a remporté le combat!\n";
         }
     }
+
+    private function gererActionsHeros($personnageJoueur, $personnageAdverse) {
+        // Gérer les actions pour le contrôle du héros
+        $action = strtolower(readline("Choisissez une action :\n1. Attaquer\n2. Se défendre" . ($personnageJoueur->getNiveau() > 1 ? "\n3. Attaque spéciale" : "") . "Votre choix : "));
+        switch ($action) {
+            case '1':
+                $personnageJoueur->attaquer($personnageAdverse);
+                break;
+            case '2':
+                $personnageJoueur->seDefendre();
+                break;
+            case '3':
+                if ($personnageJoueur->getNiveau() > 1) {
+                    if ($personnageJoueur->getTourRecharge() === 0) {
+                        $personnageJoueur->attaqueSpeciale($personnageAdverse);
+                        $personnageJoueur->reinitialiserRecharge();
+                    } else {
+                        echo "L'attaque spéciale '" . $personnageJoueur->getAttaqueSpeciale() . "' est en recharge. Vous devez attendre encore " . $personnageJoueur->getTourRecharge() . " tours.\n";
+                    }
+                } else {
+                    echo "{$personnageJoueur->getNom()} n'est pas de niveau 2 et ne peut pas utiliser d'attaque spéciale.\n";
+                }
+                break;
+            default:
+                echo "Action non valide. Réessayez.\n";
+                $this->gererActionsHeros($personnageJoueur, $personnageAdverse);
+                break;
+        }
+    }
+
+    private function actionsAleatoiresPourVilain($personnageJoueur, $personnageAdverse) {
+        // Générer des actions aléatoires pour le vilain
+        $actionAleatoire = rand(1, 3); // 1: Attaquer, 2: Se défendre, 3: Attaque spéciale
+        switch ($actionAleatoire) {
+            case 1:
+                $personnageJoueur->attaquer($personnageAdverse);
+                break;
+            case 2:
+                $personnageJoueur->seDefendre();
+                break;
+            case 3:
+                if ($personnageJoueur->getNiveau() > 1 && $personnageJoueur->getTourRecharge() === 0) {
+                    $personnageJoueur->attaqueSpeciale($personnageAdverse);
+                    $personnageJoueur->reinitialiserRecharge();
+                }
+                break;
+        }
+    }
 }
+
 
 $jeu = new Jeu();
 
-echo "Vous voulez être dans quel camp ?\n";
-$choixCamp = strtolower(readline("1. Héros \n2. Vilains\n"));
+$heros = array(
+    new Heros("Kamehameha", "Son Goku", 35, 300),
+    new Heros("Final Flash", "Vegeta", 30, 140),
+    new Heros("Special Beam Cannon", "Piccolo", 20, 130)
+);
 
-if ($choixCamp == '1' || $choixCamp == 'héros') {
-    $heros = array(
-        new Heros("Kamehameha", "Son Goku", 35, 300),
-        new Heros("Final Flash", "Vegeta", 30, 140),
-        new Heros("Special Beam Cannon", "Piccolo", 20, 130)
-    );
+$vilains = array(
+    new Vilains("Death Ball", "Freezer", 40, 275),
+    new Vilains("Solar Kamehameha", "Cell", 27, 180),
+    new Vilains("Planet Burst", "Buu", 34, 160)
+);
 
-    $vilains = array(
-        new Vilains("Death Ball", "Freezer", 40, 275),
-        new Vilains("Solar Kamehameha", "Cell", 27, 180),
-        new Vilains("Planet Burst", "Buu", 34, 160)
-    );
-} else if ($choixCamp == '2' || $choixCamp == 'vilains') {
-    $vilains = array(
-        new Vilains("Death Ball", "Freezer", 40, 275),
-        new Vilains("Solar Kamehameha", "Cell", 27, 180),
-        new Vilains("Planet Burst", "Buu", 34, 160)
-    );
-    $heros = array(
-        new Heros("Kamehameha", "Son Goku", 35, 300),
-        new Heros("Final Flash", "Vegeta", 30, 140),
-        new Heros("Special Beam Cannon", "Piccolo", 20, 130)
-    );
+echo "Choisissez le héros avec lequel vous souhaitez commencer :\n";
+for ($i = 0; $i < count($heros); $i++) {
+    echo ($i + 1) . ". " . $heros[$i]->getNom() . "\n";
 }
 
-foreach ($heros as $herosCombattant) {
+$choice = intval(readline("Votre choix : "));
+if ($choice >= 1 && $choice <= count($heros)) {
+    $herosCombattant = $heros[$choice - 1];
+    
     foreach ($vilains as $vilainsCombattant) {
         echo "Un nouveau combat commence!\n";
         $jeu->combat($herosCombattant, $vilainsCombattant);
         echo "Le combat est terminé!\n";
     }
+} else {
+    echo "Choix invalide. Le héros n'existe pas.\n";
 }
+
+
+
+
+
+
+
+
+
+

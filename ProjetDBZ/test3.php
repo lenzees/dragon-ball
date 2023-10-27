@@ -173,30 +173,34 @@ class Jeu {
 
 $jeu = new Jeu();
 
-echo "Vous voulez être dans quel camp ?\n";
-$choixCamp = strtolower(readline("1. Héros \n2. Vilains\n"));
+$heros = array(
+    new Heros("Kamehameha", "Son Goku", 35, 300),
+    new Heros("Final Flash", "Vegeta", 30, 140),
+    new Heros("Special Beam Cannon", "Piccolo", 20, 130)
+);
 
-if ($choixCamp == '1' || $choixCamp == 'héros') {
-    $heros = array(
-        new Heros("Kamehameha", "Son Goku", 35, 300),
-        new Heros("Final Flash", "Vegeta", 30, 140),
-        new Heros("Special Beam Cannon", "Piccolo", 20, 130)
-    );
+$vilains = array(
+    new Vilains("Death Ball", "Freezer", 40, 275),
+    new Vilains("Solar Kamehameha", "Cell", 27, 180),
+    new Vilains("Planet Burst", "Buu", 34, 160)
+);
 
-    $vilains = array(
-        new Vilains("Death Ball", "Freezer", 40, 275),
-        new Vilains("Solar Kamehameha", "Cell", 27, 180),
-        new Vilains("Planet Burst", "Buu", 34, 160)
-    );
-} else if ($choixCamp == '2' || $choixCamp == 'vilains') {
-    $vilains = array(
-        new Vilains("Death Ball", "Freezer", 40, 275),
-        new Vilains("Solar Kamehameha", "Cell", 27, 180),
-        new Vilains("Planet Burst", "Buu", 34, 160)
-    );
-    $heros = array(
-        new Heros("Kamehameha", "Son Goku", 35, 300),
-        new Heros("Final Flash", "Vegeta", 30, 140),
-        new Heros("Special Beam Cannon", "Piccolo", 20, 130)
-    );
+echo "Choisissez le héros avec lequel vous souhaitez commencer :\n";
+for ($i = 0; $i < count($heros); $i++) {
+    echo ($i + 1) . ". " . $heros[$i]->getNom() . "\n";
 }
+
+$choice = intval(readline("Votre choix : "));
+if ($choice >= 1 && $choice <= count($heros)) {
+    $herosCombattant = $heros[$choice - 1];
+    
+    foreach ($vilains as $vilainsCombattant) {
+        echo "Un nouveau combat commence!\n";
+        $jeu->combat($herosCombattant, $vilainsCombattant);
+        echo "Le combat est terminé!\n";
+    }
+} else {
+    echo "Choix invalide. Le héros n'existe pas.\n";
+}
+
+
