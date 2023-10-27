@@ -1,8 +1,8 @@
-<?php // commente le code ci dessous
+<?php
 //create class Personnage
 class Personnage {
     protected $nom;
-    protected $niveau_puissance;
+    protected $niveau;
     protected $vies;
     protected $attaque_speciale;
     protected $degats;
@@ -13,7 +13,7 @@ class Personnage {
     public function __construct($A, $N, $D, $V) {
         $this->attaque_speciale = $A;
         $this->nom = $N;
-        $this->niveau_puissance = 1;
+        $this->niveau = 1;
         $this->degats = $D;
         $this->vies = $V;
         $this->peutAttaquer = true; 
@@ -120,9 +120,13 @@ class Heros extends Personnage {
     public function __construct($attaque_speciale, $nom, $degats, $vies) {
         parent::__construct($attaque_speciale, $nom, $degats, $vies);
     }
+    public function gagnerCombat() {
+        $this->niveau++;
+        echo $this->nom . " a gagné le combat et atteint le niveau " . $this->niveau . "!\n";
+    }
     //create function mourir
     public function superAttaque($personnageAdverse) {
-        if ($this->premierEnnemiApparu) {
+        if ($this->niveau >= 2) {
             if ($this->tourRechargeSuperAttaque === 0) {
                 $degatsInfliges = 100;
                 $personnageAdverse->prendreDegats($degatsInfliges);
@@ -130,13 +134,13 @@ class Heros extends Personnage {
                 $this->peutAttaquer = false;
                 $this->tourRechargeSuperAttaque = 3;
             } else {
-            echo "La super attaque est en recharge. Vous devez attendre encore " . $this->tourRechargeSuperAttaque . " tours.\n";
+                echo "La super attaque est en recharge. Vous devez attendre encore " . $this->tourRechargeSuperAttaque . " tours.\n";
             }
-        }
-            else {
-            echo "Vous n'avez pas encore débloqué votre super attaque.\n";
+        } else {
+            echo $this->nom . " doit être de niveau 2 pour utiliser sa super attaque.\n";
         }
     }
+    
     //create function choixAction
     public function choixAction($personnageAdverse) {
         echo "Que voulez-vous faire ?\n";
@@ -191,6 +195,10 @@ class Vilains extends Personnage {
     public function mourir() {
         echo $this->nom . " a été vaincu!\n";
     }
+    public function gagnerCombat() {
+        $this->niveau++;
+        echo $this->nom . " a gagné le combat et atteint le niveau " . $this->niveau . "!\n";
+    }
 }
 //create class Jeu
 class Jeu {
@@ -236,8 +244,10 @@ class Jeu {
 
         if ($personnageJoueur->getVies() <= 0) {
             echo "{$personnageAdverse->getNom()} a remporté le combat!\n";
+            $personnageAdverse->gagnerCombat();
         } else {
             echo "{$personnageJoueur->getNom()} a remporté le combat!\n";
+            $personnageAdverse->gagnerCombat();
         }
     }
 }
@@ -261,15 +271,14 @@ while (true) {
     foreach ($heros as $index => $herosCombattant) {
         echo ($index + 1) . ". " . $herosCombattant->getNom() . "\n";
     }
-    $choix = intval(readline("Entrez le numéro du héros que vous voulez choisir : ")) - 1;
+    $choix = (readline("Entrez le numéro du héros que vous voulez choisir : ")) - 1;
 
     if (isset($heros[$choix])) {
         $herosChoisi = $heros[$choix];
         echo "Vous avez choisi {$herosChoisi->getNom()} comme héros.\n";
         $herosActifs[] = $herosChoisi;
-        // Ajoutez deux autres héros par défaut
-        $herosActifs[] = $heros[1]; // Ajoutez Vegeta
-        $herosActifs[] = $heros[2]; // Ajoutez Piccolo
+        $herosActifs[] = $heros[1];
+        $herosActifs[] = $heros[2];
         break;
     } else {
         echo "Héros invalide. Réessayez.\n";
