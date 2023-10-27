@@ -1,0 +1,1 @@
+{"nom":"Son Goku","niveau":2,"vies":216,"attaque_speciale":"Genki Dama","degats":35,"tourRecharge":0,"estEnDefense":false,"tourRechargeSuperAttaque":0}

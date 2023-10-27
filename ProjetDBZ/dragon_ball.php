@@ -31,7 +31,7 @@ class Personnage {
     public function getTourRecharge() {
         return $this->tourRecharge;
     }
-    //create function choixAction
+    //Prompts the user to choose an action and calls the corresponding method
     public function choixAction($personnageAdverse) {
         echo "Que voulez-vous faire ?\n";
         echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale({$this->attaque_speciale})\n";
@@ -56,7 +56,7 @@ class Personnage {
                 break;
         }
     }
-    //create function attaquer
+    // Attacks the adversary and reduces their health points
     public function attaquer($personnageAdverse) {
         $degatsInfliges = $this->degats;
         $personnageAdverse->prendreDegats($degatsInfliges);
@@ -65,12 +65,14 @@ class Personnage {
     }
 
     //create function seDefendre
+    // Increases the character's defense
     public function seDefendre() {
         $this->peutAttaquer = false;
         $this->estEnDefense = true;
         echo $this->nom . " se prépare à se faire attaquer \n";
     }
-    //create function attaqueSpeciale
+    //create function prendreDegats
+    // Reduces the character's health points by the amount of damage received
     public function prendreDegats($degats) {
         if ($this->peutAttaquer) {
             $this->vies -= $degats;
@@ -82,6 +84,7 @@ class Personnage {
         }
     }
     //create function attaqueSpeciale
+    // Attacks the adversary with a special attack and reduces their health points
     public function attaqueSpeciale($personnageAdverse) {
         if ($this->tourRecharge === 0) {
             $degatsInfliges = 50;
@@ -96,6 +99,7 @@ class Personnage {
     
 
     //create function tourSuivant
+    // Wait for the next round to load the special attack
     public function tourSuivant() {
         if ($this->tourRecharge > 0) {
             $this->tourRecharge--;
@@ -145,6 +149,7 @@ class Heros extends Personnage {
     }
     
     //create function choixAction
+    // Prompts the user to choose an action and calls the corresponding method
     public function choixAction($personnageAdverse) {
         echo "Que voulez-vous faire ?\n";
         echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale\n4. Super attaque\n";
@@ -173,6 +178,7 @@ class Heros extends Personnage {
         }
     }
     //create function attaquer
+    // Attacks the adversary and reduces their health points
     public function tourSuivant() {
         if ($this->tourRecharge > 0) {
             $this->tourRecharge--;
@@ -192,6 +198,7 @@ class Heros extends Personnage {
 }
     //create class Vilains
 class Vilains extends Personnage {
+    //create function construct
     public function __construct($super_attaque,$attaque_speciale, $nom, $degats, $vies) {
         parent::__construct($super_attaque,$attaque_speciale, $nom, $degats, $vies);
     }
@@ -206,9 +213,11 @@ class Vilains extends Personnage {
 //create class Jeu
 class Jeu {
     //create function combat
+    // Simulates a fight between two characters
     public function combat($personnageJoueur, $personnageAdverse) {
         $tour = 1;
         //create while loop 
+        // The fight ends when one of the characters has no more health points
         while ($personnageJoueur->getVies() > 0 && $personnageAdverse->getVies() > 0) {
             echo "------------------------\n";
             echo "Tour $tour\n";
@@ -250,25 +259,26 @@ class Jeu {
             $personnageAdverse->gagnerCombat();
         } else {
             echo "{$personnageJoueur->getNom()} a remporté le combat!\n";
-            $personnageAdverse->gagnerCombat();
+            $personnageJoueur->gagnerCombat();
         }
+        
     }
 }
-
+//create class Heros
 $heros = array(
-    new Heros("Kamehameha","Genki Dama", "Son Goku", 35, 300),
+    new Heros( "Kamehameha","Genki Dama", "Son Goku", 35, 300),
     new Heros(" Big Bang Attack","Final Flash", "Vegeta", 30, 140),
     new Heros("Masenko","Special Beam Cannon", "Piccolo", 20, 130)
 );
+//create class Vilains
 $vilains = array(
-    new Vilains("Supernova","Death Ball", "Freezer", 40, 275),
+    new Vilains("Attaque ventral","Planet Burst", "Buu", 34, 160),
     new Vilains("Absorption","Solar Kamehameha", "Cell", 27, 180),
-    new Vilains("Attaque ventral","Planet Burst", "Buu", 34, 160)
+    new Vilains("Supernova","Death Ball", "Freezer", 40, 275)
 );
-
+//create class Jeu
 $herosActifs = [];
 $herosChoisi = null;
-
 while (true) {
     echo "Héros disponibles:\n";
     foreach ($heros as $index => $herosCombattant) {
@@ -289,24 +299,13 @@ while (true) {
 }
 
 $jeu = new Jeu();
-
-foreach ($vilains as $vilainsCombattant) {
-    foreach ($herosActifs as $herosCombattant) {
-        echo "Un nouveau combat commence!\n";
+//create foreach loop 
+foreach ($herosActifs as $herosCombattant) {
+    echo "Un nouveau combat commence!\n";
+    foreach ($vilains as $vilainsCombattant) {
         $jeu->combat($herosCombattant, $vilainsCombattant);
-        echo "Le combat est terminé!\n";
-
-        if ($herosCombattant->getVies() <= 0) {
-            echo "{$herosCombattant->getNom()} a été vaincu!\n";
-            $key = array_search($herosCombattant, $herosActifs);
-            if ($key !== false) {
-                unset($herosActifs[$key]);
-            }
-
-            if (empty($herosActifs)) {
-                echo "Tous les héros ont été vaincus. Les méchants l'emportent!\n";
-                break 2;
-            }
-        }
     }
+    echo "Le combat est terminé!\n";
 }
+
+
