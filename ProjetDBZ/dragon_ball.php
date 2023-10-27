@@ -2,7 +2,7 @@
 <?php 
 //create class Personnage
 class Personnage {
-    protected $nom;
+    protected $nom;//protecteb beacause the vaiables are use in other classes
     protected $niveau;
     protected $vies;
     protected $attaque_speciale;
@@ -12,7 +12,7 @@ class Personnage {
     protected $estEnDefense;
     protected $super_attaque; 
     //create function construct
-    protected function __construct($S, $A, $N, $D, $V) {
+    protected function __construct($S, $A, $N, $D, $V) {//the constructor is protected because the other classes take the variables
         $this->super_attaque = $S;
         $this->attaque_speciale = $A;
         $this->nom = $N;
@@ -24,11 +24,11 @@ class Personnage {
         $this->estEnDefense = false; 
     }
     //create function getVies
-    public function getVies() {
+    public function getVies() {//the function is public because it is used outside the class
         return $this->vies;
     }
     //create function getTourRecharge
-    public function getTourRecharge() {
+    public function getTourRecharge() {//the function is public because it is used outside the class
         return $this->tourRecharge;
     }
     //create function getEstEnDefense
@@ -57,23 +57,23 @@ class Personnage {
         echo "Que voulez-vous faire ?\n";
         echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale({$this->attaque_speciale})\n";
         $action = intval(readline());
-        //create switch
+        //create switch for actions
         switch ($action) {
             case 1:
-                $this->attaquer($personnageAdverse);
+                $this->attaquer($personnageAdverse);//if it is 1 then we attack
                 break;
             case 2:
-                $this->seDefendre();
+                $this->seDefendre();//if it's 2 then we defend ourselves
                 break;
-            case 3:
-                if ($this->tourRecharge === 0) {
-                    $this->attaqueSpeciale($personnageAdverse);
+            case 3://if it is 3 we make a specaial attack
+                if ($this->tourRecharge === 0) {//the special attack has a cooldown
+                    $this->attaqueSpeciale($personnageAdverse);//if there is more cooldown then the special attack can be performed
                 } else {
-                    echo "ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";
+                    echo "ki insuffisant. Vous devez attendre encore " . $this->tourRecharge . " tours.\n";//otherwise it displays the cooldown time
                 }
                 break;
             default:
-                echo "Choix invalide.\n";
+                echo "Choix invalide.\n";//otherwise the choice is not valid
                 break;
         }
     }
@@ -82,7 +82,7 @@ class Personnage {
         if ($personnageAdverse->estEnDefense) {
             $degatsInfliges = $this->degats / 2;
             echo $this->nom . " attaque " . $personnageAdverse->getNom() . " en mode de défense et inflige " . $degatsInfliges . " dégâts.\n";
-        } else {
+        } else {//the opponent takes all the damage from the attack if he does not defend
             $degatsInfliges = $this->degats;
             echo $this->nom . " attaque " . $personnageAdverse->getNom() . " et inflige " . $degatsInfliges . " dégâts.\n";
         }
@@ -104,10 +104,10 @@ class Personnage {
         if ($this->peutAttaquer) {
             $this->vies -= $degats;
         } else {
-            $this->vies -= $degats / 2;
+            $this->vies -= $degats / 2;//if during the special attack the character opposite defends then the damage is not divided in two
         }
         if ($this->vies <= 0) {
-            $this->mourir();
+            $this->mourir();//if the character's life drops to 0 then he dies
         }
     }
     //create function attaqueSpeciale
@@ -137,18 +137,18 @@ class Personnage {
     public function tourSuivant() {
         if ($this->tourRecharge > 0) {
             $this->tourRecharge--;
-            if ($this->tourRecharge === 0) {
+            if ($this->tourRecharge === 0) {// If the cooldown timer reaches 0, the special attack is recharged.
                 echo $this->nom . " a rechargé son attaque spéciale!\n";
             }
         }
         $this->peutAttaquer = true;
     }
     //create function mourir
-    public function mourir() {
+    public function mourir() {//the function is public because it is used outside the class
         echo $this->nom . " a été vaincu!\n";
     }
     //create function getNom
-    public function getNom() {
+    public function getNom() {//the function is public because it is used outside the class
         return $this->nom;
     }
 
@@ -156,10 +156,10 @@ class Personnage {
     //create class Heros
 class Heros extends Personnage {
     private $premierEnnemiApparu = false;
-    private $tourRechargeSuperAttaque = 0;
+    private $tourRechargeSuperAttaque = 0;//private because the variable is not used outside the class
     //create function construct
-    public function __construct($super_attaque,$attaque_speciale, $nom, $degats, $vies) {
-        parent::__construct($super_attaque,$attaque_speciale, $nom, $degats, $vies);
+    public function __construct($super_attaque,$attaque_speciale, $nom, $degats, $vies) {//public because the constructor is used outside the class
+        parent::__construct($super_attaque,$attaque_speciale, $nom, $degats, $vies);//it inherits from the parent constructor
     }
     public function getAttaqueSpeciale() {
         return $this->attaque_speciale;
@@ -177,8 +177,8 @@ class Heros extends Personnage {
         $this->niveau++;
         echo $this->nom . " a gagné le combat et atteint le niveau " . $this->niveau . "!\n";
     }
-    //create function mourir
-    public function superAttaque($personnageAdverse) {
+    // creation of the function superAttaque that allows to attack the opponent with a super attack
+    public function superAttaque($personnageAdverse) {//the function is public because it is used outside the class
         if ($this->niveau >= 2) {
             if ($this->tourRechargeSuperAttaque === 0) {
                 $degatsInfliges = 100;
@@ -200,7 +200,7 @@ class Heros extends Personnage {
         echo "Que voulez-vous faire ?\n";
         echo "1. Attaquer\n2. Se défendre\n3. Attaque spéciale\n4. Super attaque\n 5. Sauvegarder\n";
         $action = (readline());
-        
+        //using switch for actions 
         switch ($action) {
             case 1:
                 $this->attaquer($personnageAdverse);
@@ -253,10 +253,10 @@ class Vilains extends Personnage {
     public function __construct($super_attaque,$attaque_speciale, $nom, $degats, $vies) {
         parent::__construct($super_attaque,$attaque_speciale, $nom, $degats, $vies);
     }
-    public function mourir() {
+    public function mourir() {//the function is public because it is used outside the class
         echo $this->nom . " a été vaincu!\n";
     }
-    public function gagnerCombat() {
+    public function gagnerCombat() {//the function is public because it is used outside the class
         $this->niveau++;
         echo $this->nom . " a gagné le combat et atteint le niveau " . $this->niveau . "!\n";
     }
@@ -276,7 +276,7 @@ class Jeu {
 
             echo "{$personnageJoueur->getNom()} - Vies : {$personnageJoueur->getVies()}\n";
             echo "{$personnageAdverse->getNom()} - Vies : {$personnageAdverse->getVies()}\n";
-            //create if statement
+            //create if statement 
             if ($personnageJoueur instanceof Heros) {
                 $personnageJoueur->choixAction($personnageAdverse);
             } else {
@@ -306,6 +306,7 @@ class Jeu {
             $tour++;
         } 
     }
+    //create function sauvegarder to save the game using json 
     public function sauvegarder($nom, $niveau, $vies, $attaque_speciale, $degats, $tourRecharge, $estEnDefense, $tourRechargeSuperAttaque) {
         $data = array(
             "nom" => $nom,
@@ -317,9 +318,11 @@ class Jeu {
             "estEnDefense" => $estEnDefense,
             "tourRechargeSuperAttaque" => $tourRechargeSuperAttaque
         );
+        //create json that allows to save the game
         $json = json_encode($data);
         file_put_contents($this->nomFichier, $json);
     }
+    //create function charger to load the game
     public function charger() {
         if (file_exists($this->nomFichier)) {
             $json = file_get_contents($this->nomFichier);
@@ -330,7 +333,7 @@ class Jeu {
         }
     }
 }
-//create class Heros
+//create class Heros 
 $heros = array(
     new Heros( "Kamehameha","Genki Dama", "Son Goku", 36, 300),
     new Heros(" Big Bang Attack","Final Flash", "Vegeta", 30, 140),
@@ -345,6 +348,7 @@ $vilains = array(
 //create class Jeu
 $herosActifs = [];
 $herosChoisi = null;
+//create while loop to choose the hero
 while (true) {
     echo "Héros disponibles:\n";
     foreach ($heros as $index => $herosCombattant) {
@@ -363,11 +367,13 @@ while (true) {
         echo "Héros invalide. Réessayez.\n";
     }
 }
-
+//create class Jeu
 $jeu = new Jeu();
+//asking the user if he wants to continue the game
 $continuerPartie = readline("Voulez-vous continuer votre partie précédente ? (O/N) ");
-
+//if the user wants to continue the game then the game is loaded
 if (strtolower($continuerPartie) === "o") {
+    // Load the game using the save() method
     $data = $jeu->charger();
 
     if ($data !== null) {
@@ -383,11 +389,11 @@ if (strtolower($continuerPartie) === "o") {
             
 
         );
-        
     } else {
         echo "Aucune sauvegarde trouvée. Démarrage d'une nouvelle partie.\n";
     }
 }
+//create foreach loop to start the game
 foreach ($vilains as $vilainsCombattant) {
     echo "Un nouveau combat commence!\n";
     $herosGagnants = [];
@@ -410,7 +416,7 @@ foreach ($vilains as $vilainsCombattant) {
             echo "Tous les héros ont été vaincus. Les méchants l'emportent!\n";
         } else {
             foreach ($herosGagnants as $herosGagnant) {
-                // Identifiez le héros gagnant ici
+                // The winning characters gain a level if he wins the fight
                 $herosGagnant->gagnerCombat();
             }
         }
